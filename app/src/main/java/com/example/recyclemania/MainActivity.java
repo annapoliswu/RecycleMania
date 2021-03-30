@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import okhttp3.*;
 
 import android.Manifest;
 import android.content.DialogInterface;
@@ -12,19 +13,26 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
+import android.widget.*;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+
 public class MainActivity extends AppCompatActivity {
     private static final int ALL_PERMISSIONS = 1;
     private static final String[] PERMISSIONS = {
-            Manifest.permission.CAMERA
+            Manifest.permission.CAMERA,
+            Manifest.permission.INTERNET
     };
 
     Button scanButton;
+    TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         //onRequestPermissionResult gets called after finishes
         ActivityCompat.requestPermissions(MainActivity.this, PERMISSIONS, ALL_PERMISSIONS);
 
+        textView = findViewById(R.id.text_view);
         scanButton = findViewById(R.id.bt_scan);
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
             AlertDialog.Builder builder = new AlertDialog.Builder(
                     MainActivity.this
             );
+
             builder.setTitle("Result");
             builder.setMessage(intentResult.getContents()); //result of scan is here, should be a lookup code
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -72,6 +82,39 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
             builder.show();
+
+
+            OkHttpClient client = new OkHttpClient();
+            String url = "https://api.upcitemdb.com/prod/trial/lookup?upc=" + intentResult.getContents();
+            //test url  https://reqres.in/api/users?page=2
+
+            Request request = new Request.Builder().url(url).build();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textView.setText("RIP REQUEST FAILED");
+                        }
+                    });
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if(response.isSuccessful()){
+                        String myResponse = response.body().string();
+
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                textView.setText("Response "+ myResponse);
+                            }
+                        });
+                    }
+                }
+            });
+
         }else{
             Toast.makeText(getApplicationContext(),
                     "Didn't scan anything.",
