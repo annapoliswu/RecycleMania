@@ -10,8 +10,10 @@ import okhttp3.*;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.*;
 
@@ -31,13 +33,18 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.INTERNET
     };
 
+
+
     Button scanButton;
     TextView textView;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        sharedPreferences = getPreferences(MODE_PRIVATE); // Access to SharedPreferences local storage
+
 
         //onRequestPermissionResult gets called after finishes
         ActivityCompat.requestPermissions(MainActivity.this, PERMISSIONS, ALL_PERMISSIONS);
@@ -48,14 +55,34 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                IntentIntegrator intentIntegrator = new IntentIntegrator(
-                        MainActivity.this
-                );
-                intentIntegrator.setPrompt("For flash use volume up key");
-                intentIntegrator.setBeepEnabled(true);
-                intentIntegrator.setOrientationLocked(true);
-                intentIntegrator.setCaptureActivity(Capture.class); //this also has a permissions check I think
-                intentIntegrator.initiateScan();
+
+                String persistentResponse = sharedPreferences.getString("response", "None");
+
+                // If a barcode has not been scanned and stored in SharedPreference, then activate scanning environment
+                if(persistentResponse == "None") {
+
+                    Log.i("StartScan", "Response not present, entering Scan");
+
+                    IntentIntegrator intentIntegrator = new IntentIntegrator(
+                            MainActivity.this
+                    );
+                    intentIntegrator.setPrompt("For flash use volume up key");
+                    intentIntegrator.setBeepEnabled(true);
+                    intentIntegrator.setOrientationLocked(true);
+                    intentIntegrator.setCaptureActivity(Capture.class); //this also has a permissions check I think
+                    intentIntegrator.initiateScan();
+                }
+                else{ // Else, continue without having to scan and API request, using the same response that was stored during a previous run
+                    Log.i("StartScan", "Response already present, using SharedPreference stored response");
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textView.setText("Response "+ persistentResponse);
+                        }
+
+                    });
+
+                }
             }
         });
     }
@@ -83,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
             });
             builder.show();
 
-
             OkHttpClient client = new OkHttpClient();
             String url = "https://api.upcitemdb.com/prod/trial/lookup?upc=" + intentResult.getContents();
             //test url  https://reqres.in/api/users?page=2
@@ -105,11 +131,22 @@ public class MainActivity extends AppCompatActivity {
                     if(response.isSuccessful()){
                         String myResponse = response.body().string();
 
+                        // Store the API response in SharedPreferences local memory, so that for development we dont have to constantly re-scan and make API requests
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("response", myResponse);
+                        editor.commit();
+
+                        //Log.i("Response", "Type: " + String.valueOf(response.body().contentType()));
+
+
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 textView.setText("Response "+ myResponse);
+
+
                             }
+
                         });
                     }
                 }
