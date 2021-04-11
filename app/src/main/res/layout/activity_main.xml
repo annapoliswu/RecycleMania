@@ -19,11 +19,11 @@
         app:layout_constraintVertical_bias="0.223" />
 
     <Button
+        android:id="@+id/bt_scan"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="168dp"
         android:text="Start Scan"
-        android:id = "@+id/bt_scan"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintLeft_toLeftOf="parent"

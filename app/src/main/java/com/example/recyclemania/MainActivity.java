@@ -20,10 +20,12 @@ import android.widget.*;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -74,13 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else{ // Else, continue without having to scan and API request, using the same response that was stored during a previous run
                     Log.i("StartScan", "Response already present, using SharedPreference stored response");
-                    MainActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            textView.setText("Response "+ persistentResponse);
-                        }
-
-                    });
+                    updateResultScreen(persistentResponse);
 
                 }
             }
@@ -136,18 +132,7 @@ public class MainActivity extends AppCompatActivity {
                         editor.putString("response", myResponse);
                         editor.commit();
 
-                        //Log.i("Response", "Type: " + String.valueOf(response.body().contentType()));
-
-
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                textView.setText("Response "+ myResponse);
-
-
-                            }
-
-                        });
+                        updateResultScreen(myResponse);
                     }
                 }
             });
@@ -182,4 +167,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-}
+    private void updateResultScreen(String response){
+        MainActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject myJson = new JSONObject();
+                JSONArray myArray = new JSONArray();
+                JSONObject myItems = new JSONObject();
+
+                try {
+                    myJson = new JSONObject(response);
+                    myArray = (JSONArray) myJson.get("items");
+                    myItems = (JSONObject) myArray.get(0);
+                    Log.i("Response", myItems.toString());
+                    textView.setText("Response:\n\n" + "Title: " + myItems.get("title") + "\nCategory: " + myItems.get("category"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+                //TODO: Make a nice response screen
+            });
+        }
+    }
