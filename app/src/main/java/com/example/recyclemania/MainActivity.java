@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     Button scanButton;
+    Button manualButton;
     TextView textView;
     SharedPreferences sharedPreferences;
 
@@ -52,6 +53,17 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(MainActivity.this, PERMISSIONS, ALL_PERMISSIONS);
 
         textView = findViewById(R.id.text_view);
+
+        manualButton = findViewById(R.id.bt_scan2);
+        manualButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v){
+                Intent intent = new Intent(MainActivity.this, Manual.class);
+                startActivity(intent);
+            }
+        });
+
+
         scanButton = findViewById(R.id.bt_scan);
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
