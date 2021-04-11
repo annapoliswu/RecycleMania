@@ -10,18 +10,22 @@ import okhttp3.*;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.*;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -31,31 +35,62 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.INTERNET
     };
 
+
+
     Button scanButton;
+    Button manualButton;
     TextView textView;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        sharedPreferences = getPreferences(MODE_PRIVATE); // Access to SharedPreferences local storage
+
 
         //onRequestPermissionResult gets called after finishes
         ActivityCompat.requestPermissions(MainActivity.this, PERMISSIONS, ALL_PERMISSIONS);
 
         textView = findViewById(R.id.text_view);
+
+        manualButton = findViewById(R.id.bt_scan2);
+        manualButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v){
+                Intent intent = new Intent(MainActivity.this, Manual.class);
+                startActivity(intent);
+            }
+        });
+
+
         scanButton = findViewById(R.id.bt_scan);
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                IntentIntegrator intentIntegrator = new IntentIntegrator(
-                        MainActivity.this
-                );
-                intentIntegrator.setPrompt("For flash use volume up key");
-                intentIntegrator.setBeepEnabled(true);
-                intentIntegrator.setOrientationLocked(true);
-                intentIntegrator.setCaptureActivity(Capture.class); //this also has a permissions check I think
-                intentIntegrator.initiateScan();
+
+                String persistentResponse = sharedPreferences.getString("response", "None");
+
+                // If a barcode has not been scanned and stored in SharedPreference, then activate scanning environment
+                if(persistentResponse == "None") {
+
+                    Log.i("StartScan", "Response not present, entering Scan");
+
+                    IntentIntegrator intentIntegrator = new IntentIntegrator(
+                            MainActivity.this
+                    );
+                    intentIntegrator.setPrompt("For flash use volume up key");
+                    intentIntegrator.setBeepEnabled(true);
+                    intentIntegrator.setOrientationLocked(true);
+                    intentIntegrator.setCaptureActivity(Capture.class); //this also has a permissions check I think
+                    intentIntegrator.initiateScan();
+                }
+                else{ // Else, continue without having to scan and API request, using the same response that was stored during a previous run
+                    Log.i("StartScan", "Response already present, using SharedPreference stored response");
+                    updateResultScreen(persistentResponse);
+
+                }
             }
         });
     }
@@ -83,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
             });
             builder.show();
 
-
             OkHttpClient client = new OkHttpClient();
             String url = "https://api.upcitemdb.com/prod/trial/lookup?upc=" + intentResult.getContents();
             //test url  https://reqres.in/api/users?page=2
@@ -105,12 +139,12 @@ public class MainActivity extends AppCompatActivity {
                     if(response.isSuccessful()){
                         String myResponse = response.body().string();
 
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                textView.setText("Response "+ myResponse);
-                            }
-                        });
+                        // Store the API response in SharedPreferences local memory, so that for development we dont have to constantly re-scan and make API requests
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("response", myResponse);
+                        editor.commit();
+
+                        updateResultScreen(myResponse);
                     }
                 }
             });
@@ -145,4 +179,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-}
+    private void updateResultScreen(String response){
+        MainActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject myJson = new JSONObject();
+                JSONArray myArray = new JSONArray();
+                JSONObject myItems = new JSONObject();
+
+                try {
+                    myJson = new JSONObject(response);
+                    myArray = (JSONArray) myJson.get("items");
+                    myItems = (JSONObject) myArray.get(0);
+                    Log.i("Response", myItems.toString());
+                    textView.setText("Response:\n\n" + "Title: " + myItems.get("title") + "\nCategory: " + myItems.get("category"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+                //TODO: Make a nice response screen
+            });
+        }
+    }
