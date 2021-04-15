@@ -12,7 +12,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RecycleMania">
-        <activity android:name=".Plastic"></activity>
+        <activity android:name=".Metal"></activity>
+        <activity android:name=".Glass" />
+        <activity android:name=".Paper" />
+        <activity android:name=".Plastic" />
         <activity
             android:name=".Manual"
             android:label="@string/title_activity_manual"
