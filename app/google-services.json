@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "830716515358",
+    "project_id": "recyclemania-3b899",
+    "storage_bucket": "recyclemania-3b899.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:830716515358:android:bd3384f4879ab22a3d0a0f",
+        "android_client_info": {
+          "package_name": "com.android.application"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "830716515358-oki976db9ogu2vf9kj4invcqiogcpsrs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.android.application",
+            "certificate_hash": "debcaa11bd6e98af08b0f3873b972c7dfcb90f18"
+          }
+        },
+        {
+          "client_id": "830716515358-2n398nu88vjs95g2gqqe5d2ok72tv3to.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbpJ3ufZHb3ahM79YGIpX6o6DDWExl5gM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "830716515358-2n398nu88vjs95g2gqqe5d2ok72tv3to.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
