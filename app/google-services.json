@@ -7,17 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:830716515358:android:bd3384f4879ab22a3d0a0f",
+        "mobilesdk_app_id": "1:830716515358:android:79fe687fcf2d47393d0a0f",
         "android_client_info": {
-          "package_name": "com.android.application"
+          "package_name": "com.example.recyclemania"
         }
       },
       "oauth_client": [
         {
-          "client_id": "830716515358-oki976db9ogu2vf9kj4invcqiogcpsrs.apps.googleusercontent.com",
+          "client_id": "830716515358-chudb24v6vl9f6hfb41olblk6vr0c7it.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.android.application",
+            "package_name": "com.example.recyclemania",
             "certificate_hash": "debcaa11bd6e98af08b0f3873b972c7dfcb90f18"
           }
         },

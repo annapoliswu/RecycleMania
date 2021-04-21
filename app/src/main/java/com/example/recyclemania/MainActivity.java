@@ -180,6 +180,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateResultScreen(String response){
+
+        textView.setText("Already scanned an item!\nItem in storage");
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
