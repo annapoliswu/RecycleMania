@@ -36,7 +36,7 @@ public class Manual extends AppCompatActivity {
     *
     * */
     RecyclingCategory plastic = new RecyclingCategory(
-            new String[]{"PET", "HDPE", "PVC", "LDPE", "PP", "PS", "Other"},
+            new String[]{"♻️1 - PET", "♻️2 - HDPE", "♻️3 - PVC", "♻️4 - LDPE", "♻️5 - PP", "♻️6 - PS", "♻️7 - Other"},
             new String[]{
                     "soft drinks, bottles, juice containers, oil bottles",
                     "milk jugs, cleaning agents, laundry agents, shampoo bottles",
