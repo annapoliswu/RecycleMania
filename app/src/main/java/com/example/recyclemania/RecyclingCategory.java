@@ -15,9 +15,6 @@ public class RecyclingCategory {
     RecyclingSub [] subcategories;
     FragmentItem frag;
     Context context;
-    String[] names;
-    String [] examples;
-    String [] tips;
 
     RecyclingCategory(RecyclingSub [] sub, Context co){
         subcategories = sub;
@@ -29,18 +26,16 @@ public class RecyclingCategory {
     private void createFragment(){
         List<String> namesList = new ArrayList();
         List<String> examplesList = new ArrayList();
-        List<String> tipsList = new ArrayList();
         for (RecyclingSub subcat : subcategories){
             namesList.add(subcat.name);
             examplesList.add(subcat.examples);
-            tipsList.add(subcat.tip);
         }
-        names = namesList.toArray(new String[0]);
-        examples = examplesList.toArray(new String[0]);
-        tips = tipsList.toArray(new String[0]);
+        String [] names = namesList.toArray(new String[0]);
+        String [] examples = examplesList.toArray(new String[0]);
+
         frag = new FragmentItem(names, examples, (parent, view, position, id) -> {
             if(subcategories[position].recyclable == true){
-                alertRecyclable(tips[position]);
+                alertRecyclable(subcategories[position].tip);
             }else{
                 alertNotRecyclable();
             }

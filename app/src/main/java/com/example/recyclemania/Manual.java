@@ -54,10 +54,10 @@ public class Manual extends AppCompatActivity {
             new RecyclingSub[]{
                     new RecyclingSub("♻️1 - PET", "soft drinks, bottles, juice containers, oil bottles", "specific tip" ,true),
                     new RecyclingSub("♻️2 - HDPE", "milk jugs, cleaning agents, laundry agents, shampoo bottles", true),
-                    new RecyclingSub("♻️3 - PVC", "pipes, auto product bottles, fruit trays, food foils, plastic wrap", true),
+                    new RecyclingSub("♻️3 - PVC", "pipes, auto product bottles, fruit trays, food foils, plastic wrap", false),
                     new RecyclingSub("♻️4 - LDPE", "squeeze bottles, most bags, six-pack rings", true),
                     new RecyclingSub("♻️5 - PP", "auto parts, industrial fibres", true),
-                    new RecyclingSub("♻️6 - PS", "plastic utensils, styrofoam, cafeteria trays", true),
+                    new RecyclingSub("♻️6 - PS", "plastic utensils, styrofoam, cafeteria trays", false),
                     new RecyclingSub("♻️7 - Other", "any other plastics", false),
             },
             Manual.this
