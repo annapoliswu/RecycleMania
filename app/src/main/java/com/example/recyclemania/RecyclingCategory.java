@@ -24,16 +24,7 @@ public class RecyclingCategory {
 
 
     private void createFragment(){
-        List<String> namesList = new ArrayList();
-        List<String> examplesList = new ArrayList();
-        for (RecyclingSub subcat : subcategories){
-            namesList.add(subcat.name);
-            examplesList.add(subcat.examples);
-        }
-        String [] names = namesList.toArray(new String[0]);
-        String [] examples = examplesList.toArray(new String[0]);
-
-        frag = new FragmentItem(names, examples, (parent, view, position, id) -> {
+        frag = new FragmentItem(subcategories, (parent, view, position, id) -> {
             if(subcategories[position].recyclable == true){
                 alertRecyclable(subcategories[position].tip);
             }else{

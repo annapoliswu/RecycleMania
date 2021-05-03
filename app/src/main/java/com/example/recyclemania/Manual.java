@@ -30,25 +30,6 @@ public class Manual extends AppCompatActivity {
     String[] categories = new String[]{"Paper", "Plastic" , "Glass", "Metal", "Organic", "Other"};
     Map<String, RecyclingCategory> categoryMap = new HashMap<>();
 
-    /*
-    * Each recycling category item includes list of subcategories, subcategory descriptions, and tips
-    * Lists must be of same length
-    *
-    RecyclingCategory plastic = new RecyclingCategory(
-            new String[]{"♻️1 - PET", "♻️2 - HDPE", "♻️3 - PVC", "♻️4 - LDPE", "♻️5 - PP", "♻️6 - PS", "♻️7 - Other"},
-            new String[]{
-                    "soft drinks, bottles, juice containers, oil bottles",
-                    "milk jugs, cleaning agents, laundry agents, shampoo bottles",
-                    "pipes, auto product bottles, fruit trays, food foils, plastic wrap",
-                    "squeeze bottles, most bags, six-pack rings",
-                    "auto parts, industrial fibres",
-                    "plastic utensils, styrofoam, cafeteria trays",
-                    "any other plastics"
-            },
-            Manual.this
-    );
-
-    * */
 
     RecyclingCategory plastic = new RecyclingCategory(
             new RecyclingSub[]{
