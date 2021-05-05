@@ -8,15 +8,31 @@ import androidx.core.app.ActivityCompat;
 import okhttp3.*;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
 
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -25,7 +41,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -39,8 +59,13 @@ public class MainActivity extends AppCompatActivity {
 
     Button scanButton;
     Button manualButton;
+    Button loginButton;
     TextView textView;
+    private EditText result;
+    private EditText result2;
     SharedPreferences sharedPreferences;
+    final Context context = this;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +85,133 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v){
                 Intent intent = new Intent(MainActivity.this, Manual.class);
                 startActivity(intent);
+            }
+        });
+
+        result = (EditText) findViewById(R.id.userName);
+        String userName = sharedPreferences.getString("user", "");
+        result.setText("User: " + userName);
+
+        //TODO: Make this updatePoints() or something
+        result2 = (EditText) findViewById(R.id.userPoints);
+        db.collection("users").whereEqualTo("name", userName)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d("GetUserPoints", document.getId() + " => " + document.getData());
+                                result2.setText("Points: " + document.getData().get("points"));
+                            }
+                        } else {
+                            Log.d("GetUserPoints", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+
+
+
+        loginButton = findViewById(R.id.login);
+        loginButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View arg0) {
+
+                // get prompts.xml view
+                LayoutInflater li = LayoutInflater.from(context);
+                View promptsView = li.inflate(R.layout.custom, null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        context);
+
+                // set prompts.xml to alertdialog builder
+                alertDialogBuilder.setView(promptsView);
+
+                final EditText userInput = (EditText) promptsView
+                        .findViewById(R.id.editTextDialogUserInput);
+
+                // set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        // get user input and set it to result
+                                        // edit text
+                                        result.setText("User: " + userInput.getText());
+
+                                        String myResponse = userInput.getText().toString();
+
+                                        // Store the API response in SharedPreferences local memory, so that for development we dont have to constantly re-scan and make API requests
+                                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                                        editor.putString("user", myResponse);
+                                        editor.commit();
+
+                                        Map<String, Object> user = new HashMap<>();
+                                        user.put("name", myResponse);
+
+                                        //TODO: Make this into fireStore.addUser("name")
+                                        Log.d("userExists?", "Entering db query setup");
+                                        db.collection("users").whereEqualTo("name", myResponse)
+                                                .get()
+                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                        if (task.isSuccessful()) {
+                                                            if(task.getResult().isEmpty()){
+                                                                //If user does not exist, add user to the database.
+                                                                db.collection("users")
+                                                                        .add(user)
+                                                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                                            @Override
+                                                                            public void onSuccess(DocumentReference documentReference) {
+                                                                                Log.d("DocSnippets", "DocumentSnapshot added with ID: " + documentReference.getId());
+                                                                            }
+                                                                        })
+                                                                        .addOnFailureListener(new OnFailureListener() {
+                                                                            @Override
+                                                                            public void onFailure(@NonNull Exception e) {
+                                                                                Log.w("DocSnippets", "Error adding document", e);
+                                                                            }
+                                                                        });
+                                                            }
+                                                    } else {
+                                                            Log.d("userExists?", "Error getting documents: ", task.getException());
+                                                        }
+
+                                                    }
+                                                });
+
+                                        //TODO: Update user points
+                                        db.collection("users").whereEqualTo("name", myResponse)
+                                                .get()
+                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                        if (task.isSuccessful()) {
+                                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                                Log.d("GetUserPoints", document.getId() + " => " + document.getData());
+                                                                result2.setText("Points: " + document.getData().get("points"));
+                                                            }
+                                                        } else {
+                                                            Log.d("GetUserPoints", "Error getting documents: ", task.getException());
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                }
+                        ).setNegativeButton("Cancel",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                // show it
+                alertDialog.show();
+
             }
         });
 
