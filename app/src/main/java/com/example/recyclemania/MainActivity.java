@@ -17,6 +17,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.*;
 
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.IdpResponse;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -25,7 +29,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -39,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     Button scanButton;
     Button manualButton;
+    Button loginButton;
     TextView textView;
     SharedPreferences sharedPreferences;
 
@@ -52,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         //onRequestPermissionResult gets called after finishes
         ActivityCompat.requestPermissions(MainActivity.this, PERMISSIONS, ALL_PERMISSIONS);
 
-        textView = findViewById(R.id.text_view);
+        textView = findViewById(R.id.textView4); //used to be text_view but I dont see it anymore. More or less placeholder
 
         manualButton = findViewById(R.id.bt_scan2);
         manualButton.setOnClickListener(new View.OnClickListener() {
@@ -62,6 +69,11 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+//        loginButton = findViewById(R.id.login);
+//        loginButton.setOnClickListener(new View.OnClickListener(){
+//
+//        });
 
 
         scanButton = findViewById(R.id.bt_scan);
