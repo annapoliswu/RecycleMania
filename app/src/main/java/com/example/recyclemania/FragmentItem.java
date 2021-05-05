@@ -21,6 +21,8 @@ import androidx.fragment.app.Fragment;
      String[] list1;
      String[] list2;
      String[][] list2D;
+     RecyclingSub[] listSub;
+
      AdapterView.OnItemClickListener clickListener;
 
      public FragmentItem(){ //need default else error
@@ -58,6 +60,15 @@ import androidx.fragment.app.Fragment;
          clickListener = cl;
      }
 
+     /**
+      * @param items a list of RecyclingSub
+      */
+     public FragmentItem(RecyclingSub[] items, AdapterView.OnItemClickListener cl){
+         super(R.layout.fragment_item);
+         listSub = items;
+         clickListener = cl;
+     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -72,7 +83,20 @@ import androidx.fragment.app.Fragment;
         ListView listView = (ListView)view.findViewById(R.id.itemlist);
         ArrayAdapter adapter;
 
-        if(list2D != null){
+        if(listSub != null){
+            adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_2, android.R.id.text1, listSub) {
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    View view = super.getView(position, convertView, parent);
+                    TextView text1 = (TextView) view.findViewById(android.R.id.text1);
+                    TextView text2 = (TextView) view.findViewById(android.R.id.text2);
+
+                    text1.setText(listSub[position].name);
+                    text2.setText(listSub[position].examples);
+                    return view;
+                }
+            };
+        }else if(list2D != null){
             adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_2, android.R.id.text1, list2D) {
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {

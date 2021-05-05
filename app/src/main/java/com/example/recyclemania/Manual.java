@@ -27,33 +27,58 @@ public class Manual extends AppCompatActivity {
     FragmentManager fragManager;
 
     //if you change these, make sure to change the Map
-    String[] categories = new String[]{"Paper", "Plastic" , "Glass", "Metal", "Organic", "Other"};
+    String[] categories = new String[]{"Paper", "Plastic" , "Glass", "Metal", "Other"};
     Map<String, RecyclingCategory> categoryMap = new HashMap<>();
+    String generalTip = "Rinse out any contaminants and recycle.";
 
-    /*
-    * Each recycling category item includes list of subcategories, subcategory descriptions, and tips
-    * Lists must be of same length
-    *
-    * */
     RecyclingCategory plastic = new RecyclingCategory(
-            new String[]{"♻️1 - PET", "♻️2 - HDPE", "♻️3 - PVC", "♻️4 - LDPE", "♻️5 - PP", "♻️6 - PS", "♻️7 - Other"},
-            new String[]{
-                    "soft drinks, bottles, juice containers, oil bottles",
-                    "milk jugs, cleaning agents, laundry agents, shampoo bottles",
-                    "pipes, auto product bottles, fruit trays, food foils, plastic wrap",
-                    "squeeze bottles, most bags, six-pack rings",
-                    "auto parts, industrial fibres",
-                    "plastic utensils, styrofoam, cafeteria trays",
-                    "any other plastics"
+            new RecyclingSub[]{
+                    new RecyclingSub("♻️1 - PET", "Soft drinks, bottles, juice containers, oil bottles.", generalTip ,true),
+                    new RecyclingSub("♻️2 - HDPE", "Milk jugs, cleaning agents, laundry agents, shampoo bottles.", generalTip,true),
+                    new RecyclingSub("♻️3 - PVC", "Pipes, auto product bottles, fruit trays, food foils, plastic wrap.", false),
+                    new RecyclingSub("♻️4 - LDPE", "Squeeze bottles, most bags, six-pack rings", "Clear any contaminants and recycle." , true),
+                    new RecyclingSub("♻️5 - PP", "Auto parts, industrial fibres", "Is not recyclable in general waste bin. If recycling, please find an appropriate center.",true),
+                    new RecyclingSub("♻️6 - PS", "Plastic utensils, styrofoam, cafeteria trays.", false),
+                    new RecyclingSub("♻️7 - Other", "Any other plastics.", false),
             },
             Manual.this
     );
 
-    RecyclingCategory paper;
-    RecyclingCategory glass;
-    RecyclingCategory metal;
-    RecyclingCategory organic;
-    RecyclingCategory other;
+    RecyclingCategory paper = new RecyclingCategory(
+            new RecyclingSub[] {
+                    new RecyclingSub("♻️20 - PAP", "Cardboard boxes.", "Make sure there is no liquid or contaminant on the box by cutting those parts out.\n\nIf the box has too much contamination, throw it out. Flatten and recycle.", true),
+                    new RecyclingSub("♻️21 - PAP", "Cereal and snack boxes.", "Make sure there is no remaining food on the box. Flatten and recycle.", true),
+                    new RecyclingSub("♻️22 - PAP", "Newspaper, books, magazines, wrapping paper, wallpaper, paper bags, paper straws.", "Make sure there is no liquid or contaminant on the paper by cutting those parts out.\n\nIf the paper has too much contamination, throw it out.", true),
+                    new RecyclingSub("♻️81 - PAP/PET", "Consumer packaging, pet food bags, cold store grocery bags, icecream containers, cardboard cans, disposable plates.", false),
+                    new RecyclingSub("♻️84 - C/PAP", "Liquid storage containers, juice boxes, cardboard cans, cigarette pack liners, wax paper, gum wrappers, cartridge shells for blanks, fireworks colouring material, Tetra Brik.", false),
+                    new RecyclingSub("♻️87 - CSL", "Laminating material, special occasion cards, bookmarks, business cards, flyers/advertising.", false)
+            },
+            Manual.this
+    );
+
+    //was not sure if we should include all the glass categories since they're all mostly recyclable
+    RecyclingCategory glass = new RecyclingCategory(
+            new RecyclingSub[] {
+                    new RecyclingSub("♻️70-74 - GL", "Various color glass bottles.", "Rinse out any contaminants and recycle.", true),
+                    new RecyclingSub("Other", "Window panes, mirrors, monitors.", false)
+            },
+        Manual.this
+    );
+    RecyclingCategory metal = new RecyclingCategory(
+            new RecyclingSub[] {
+                    new RecyclingSub("♻️40 - FE", "Food cans.", "Rinse out any contaminants. Remove the lid, place it inside the can, and recycle.", true),
+                    new RecyclingSub("♻️41 - ALU", "Soft drink cans, deodorant cans, disposable food containers, aluminium foil, heat sinks.", "Rinse out any contaminants. Remove any tabs and recycle.", true),
+            },
+            Manual.this
+    );
+
+    RecyclingCategory other = new RecyclingCategory(
+            new RecyclingSub[] {
+                    new RecyclingSub("E-waste", "Computers, phones, batteries.", "Is not recyclable in general waste bin. If recycling, please find an appropriate center.", true),
+                    new RecyclingSub("Organic", "Food waste, peels, egg shells, etc.", "Is not recyclable in general waste bin. If recycling, please try composting.", true)
+            },
+            Manual.this
+    );
 
 
     @Override
@@ -64,11 +89,10 @@ public class Manual extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         categoryMap.put("Plastic", plastic);
-        categoryMap.put("Paper",plastic);
-        categoryMap.put("Glass",plastic);
-        categoryMap.put("Metal",plastic);
-        categoryMap.put("Organic",plastic);
-        categoryMap.put("Other",plastic);
+        categoryMap.put("Paper", paper);
+        categoryMap.put("Glass",glass);
+        categoryMap.put("Metal",metal);
+        categoryMap.put("Other",other);
 
 
         if (savedInstanceState == null) {
