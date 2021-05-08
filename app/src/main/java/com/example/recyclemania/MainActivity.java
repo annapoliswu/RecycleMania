@@ -224,8 +224,8 @@ public class MainActivity extends AppCompatActivity {
 
                 String persistentResponse = sharedPreferences.getString("response", "None");
 
-                // If a barcode has not been scanned and stored in SharedPreference, then activate scanning environment
-                if(persistentResponse == "None") {
+//                // If a barcode has not been scanned and stored in SharedPreference, then activate scanning environment
+//                if(persistentResponse == "None") {
 
                     Log.i("StartScan", "Response not present, entering Scan");
 
@@ -237,12 +237,12 @@ public class MainActivity extends AppCompatActivity {
                     intentIntegrator.setOrientationLocked(true);
                     intentIntegrator.setCaptureActivity(Capture.class); //this also has a permissions check I think
                     intentIntegrator.initiateScan();
-                }
-                else{ // Else, continue without having to scan and API request, using the same response that was stored during a previous run
-                    Log.i("StartScan", "Response already present, using SharedPreference stored response");
-                    updateResultScreen(persistentResponse);
-
-                }
+//                }
+//                else{ // Else, continue without having to scan and API request, using the same response that was stored during a previous run
+//                    Log.i("StartScan", "Response already present, using SharedPreference stored response");
+//                    updateResultScreen(persistentResponse);
+//
+//                }
             }
         });
     }
@@ -333,7 +333,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateResultScreen(String response){
 
-        textView.setText("Already scanned an item!\nItem in storage");
+
+
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -346,7 +347,29 @@ public class MainActivity extends AppCompatActivity {
                     myArray = (JSONArray) myJson.get("items");
                     myItems = (JSONObject) myArray.get(0);
                     Log.i("Response", myItems.toString());
-                    textView.setText("Response:\n\n" + "Title: " + myItems.get("title") + "\nCategory: " + myItems.get("category"));
+                    textView.setText("Response:\n\n" + "Title: " + myItems.get("title") + "\nCategory: " + myItems.get("category") + "\nCode: " + myItems.get("ean"));
+                    String curUser = sharedPreferences.getString("user", "None");
+
+                    Map<String, Object> myScan = new HashMap<>();
+                    myScan.put("ean", myItems.get("ean"));
+                    myScan.put("material", "TODO");
+                    myScan.put("user", curUser);
+
+                    db.collection("barcodes").document() //Does there need to be something within document()?
+                            .set(myScan)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid){
+                                    Log.d("scanPush", "Successfully pushed scan!");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w("scanPush", "Error writing document", e);
+                                }
+                            });
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
