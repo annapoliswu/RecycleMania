@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">RecycleMania</string>
     <string name="title_activity_manual">Manual</string>
+    <string name="title_activity_scanSelect">Choose Category</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>

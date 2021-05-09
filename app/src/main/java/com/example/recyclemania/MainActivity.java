@@ -19,18 +19,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
 
-import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -41,10 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 
@@ -66,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     final Context context = this;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    String category;
+    String subcategory;
+    String ean;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         manualButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
-                Intent intent = new Intent(MainActivity.this, Manual.class);
+                Intent intent = new Intent(MainActivity.this, ScanSelect.class);
                 startActivity(intent);
             }
         });
@@ -215,6 +209,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            category = extras.getString("category");
+            subcategory = extras.getString("subcategory");
+            String str = "Category: " + category + " Subcategory: " + subcategory;
+            textView.setText(str);
+        }else{
+            category = null;
+            subcategory = null;
+            textView.setText("hmm");
+        }
 
         scanButton = findViewById(R.id.bt_scan);
         scanButton.setOnClickListener(new View.OnClickListener() {
@@ -245,6 +250,8 @@ public class MainActivity extends AppCompatActivity {
 //                }
             }
         });
+
+
     }
 
     @Override
@@ -256,16 +263,29 @@ public class MainActivity extends AppCompatActivity {
         );
 
         if(intentResult != null){
+
             AlertDialog.Builder builder = new AlertDialog.Builder(
                     MainActivity.this
             );
 
             builder.setTitle("Result");
-            builder.setMessage(intentResult.getContents()); //result of scan is here, should be a lookup code
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            String barcode = intentResult.getContents();
+            builder.setMessage(barcode); //result of scan is here, should be a lookup code
+            builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
+                }
+            });
+
+            builder.setPositiveButton("Log in Database", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent intent = new Intent(MainActivity.this, ScanSelect.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("barcode", barcode);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
                 }
             });
             builder.show();
@@ -288,6 +308,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
+
                     if(response.isSuccessful()){
                         String myResponse = response.body().string();
 
@@ -295,6 +316,7 @@ public class MainActivity extends AppCompatActivity {
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString("response", myResponse);
                         editor.commit();
+                        //pull up manual here
 
                         updateResultScreen(myResponse);
                     }
@@ -307,6 +329,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.LENGTH_LONG).show();
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -338,6 +361,8 @@ public class MainActivity extends AppCompatActivity {
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
+
                 JSONObject myJson = new JSONObject();
                 JSONArray myArray = new JSONArray();
                 JSONObject myItems = new JSONObject();
@@ -375,6 +400,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
                 //TODO: Make a nice response screen
+
             });
         }
     }

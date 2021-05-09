@@ -2,9 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.recyclemania">
 
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.INTERNET" />
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -12,7 +9,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RecycleMania">
-        <activity android:name=".Metal"></activity>
+        <activity
+            android:name=".ScanSelect"
+            android:label="@string/title_activity_scanSelect"
+            android:theme="@style/Theme.RecycleMania.NoActionBar" />
+        <activity android:name=".Metal" />
         <activity android:name=".Glass" />
         <activity android:name=".Paper" />
         <activity android:name=".Plastic" />
@@ -33,5 +34,8 @@
             android:stateNotNeeded="true"
             android:theme="@style/zxing_CaptureTheme" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
 
 </manifest>
