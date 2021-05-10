@@ -23,7 +23,8 @@ import androidx.fragment.app.Fragment;
      String[][] list2D;
      RecyclingSub[] listSub;
      String category;
-     String barcode = "init";
+     String barcode;
+     String user;
 
      AdapterView.OnItemClickListener clickListener;
 
@@ -81,6 +82,9 @@ import androidx.fragment.app.Fragment;
              }
              if(args.getString("barcode") != null) {
                  barcode = args.getString("barcode");
+             }
+             if(args.getString("user") != null) {
+                 user = args.getString("user");
              }
 
          }

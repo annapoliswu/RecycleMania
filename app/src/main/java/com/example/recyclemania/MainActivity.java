@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         manualButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
-                Intent intent = new Intent(MainActivity.this, ScanSelect.class);
+                Intent intent = new Intent(MainActivity.this, Manual.class);
                 startActivity(intent);
             }
         });
@@ -209,6 +209,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        //testing passing stuff
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             category = extras.getString("category");
@@ -220,6 +222,8 @@ public class MainActivity extends AppCompatActivity {
             subcategory = null;
             textView.setText("hmm");
         }
+
+
 
         scanButton = findViewById(R.id.bt_scan);
         scanButton.setOnClickListener(new View.OnClickListener() {
@@ -284,44 +288,16 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(MainActivity.this, ScanSelect.class);
                     Bundle bundle = new Bundle();
                     bundle.putString("barcode", barcode);
+                    String curUser = sharedPreferences.getString("user", "None");
+                    bundle.putString("user", curUser);
                     intent.putExtras(bundle);
                     startActivity(intent);
+
                 }
             });
             builder.show();
 
-            OkHttpClient client = new OkHttpClient();
-            String url = "https://api.upcitemdb.com/prod/trial/lookup?upc=" + intentResult.getContents();
-            //test url  https://reqres.in/api/users?page=2
 
-            Request request = new Request.Builder().url(url).build();
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    MainActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            textView.setText("RIP REQUEST FAILED");
-                        }
-                    });
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-
-                    if(response.isSuccessful()){
-                        String myResponse = response.body().string();
-
-                        // Store the API response in SharedPreferences local memory, so that for development we dont have to constantly re-scan and make API requests
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("response", myResponse);
-                        editor.commit();
-                        //pull up manual here
-
-                        updateResultScreen(myResponse);
-                    }
-                }
-            });
 
         }else{
             Toast.makeText(getApplicationContext(),
@@ -354,18 +330,50 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    private void logItem(String barcode, String category, String material){
+        Map<String, Object> myScan = new HashMap<>();
+        myScan.put("barcode", barcode);
+        myScan.put("category", category);
+        myScan.put("material", material);
+
+        String curUser = sharedPreferences.getString("user", "None");
+        myScan.put("user", curUser);
+
+        db.collection("barcodes").document() //Does there need to be something within document()?
+                .set(myScan)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid){
+                        Log.d("scanPush", "Successfully pushed scan!");
+                        Toast.makeText(getApplicationContext(),
+                                "Successfully logged item!.",
+                                Toast.LENGTH_LONG).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("scanPush", "Error writing document", e);
+                    }
+                });
+    }
+
     private void updateResultScreen(String response){
-
-
 
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
+                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                dialog.setTitle("2nd");
+                dialog.setMessage(response);
+                dialog.setNegativeButton("Back", (dialog12, which) -> {});
+                dialog.show();
 
                 JSONObject myJson = new JSONObject();
                 JSONArray myArray = new JSONArray();
                 JSONObject myItems = new JSONObject();
+
 
                 try {
                     myJson = new JSONObject(response);

@@ -18,8 +18,8 @@ import androidx.fragment.app.FragmentTransaction;
 public class ScanSelect extends AppCompatActivity {
     FragmentManager fragManager;
     String category;
-    String subcategory;
     String barcode;
+    String user;
 
 
     //if you change these, make sure to change the Map
@@ -94,6 +94,7 @@ public class ScanSelect extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             barcode = extras.getString("barcode");
+            user = extras.getString("user");
         }
 
         if (savedInstanceState == null) {
@@ -105,6 +106,7 @@ public class ScanSelect extends AppCompatActivity {
                 Bundle bundle = new Bundle();
                 bundle.putString("category", category);
                 bundle.putString("barcode", barcode);
+                bundle.putString("user", user);
                 Fragment frag = categoryMap.get(category).getFrag();
                 frag.setArguments(bundle);
                 switchFrag(frag);

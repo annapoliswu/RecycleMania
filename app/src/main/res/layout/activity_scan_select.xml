@@ -31,6 +31,16 @@
         app:srcCompat="?attr/homeAsUpIndicator"
         android:contentDescription="TODO" />
 
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="159dp"
+        android:layout_height="155dp"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible"
+        app:layout_anchor="@+id/constraintLayout"
+        app:layout_anchorGravity="center" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
