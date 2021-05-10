@@ -83,7 +83,6 @@ public class ScanCategory extends RecyclingCategory{
                     if(response.isSuccessful()){
                         try {
                             String myResponse = response.body().string();
-
                             JSONObject myJson = new JSONObject(myResponse);
                             JSONArray myArray = (JSONArray) myJson.get("items");
                             JSONObject myItems = (JSONObject) myArray.get(0);
@@ -92,14 +91,6 @@ public class ScanCategory extends RecyclingCategory{
                         } catch (IOException | JSONException e) {
                             e.printStackTrace();
                         }
-
-                        // Store the API response in SharedPreferences local memory, so that for development we dont have to constantly re-scan and make API requests
-                        //SharedPreferences.Editor editor = sharedPreferences.edit();
-                        //editor.putString("response", myResponse);
-                        //editor.commit();
-
-                        //updateResultScreen(myResponse);
-
                     }
 
                     ((Activity)context).runOnUiThread(new Runnable() {
@@ -139,8 +130,6 @@ public class ScanCategory extends RecyclingCategory{
         myScan.put("recyclable", recyclable);
         myScan.put("user", user);
 
-        //String curUser = sharedPreferences.getString("user", "None");
-        //myScan.put("user", curUser);
 
         db.collection("barcodes").document(barcode) //Does there need to be something within document()?
                 .set(myScan)

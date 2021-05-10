@@ -272,10 +272,10 @@ public class MainActivity extends AppCompatActivity {
                     MainActivity.this
             );
 
-            builder.setTitle("Result");
+            builder.setTitle("Barcode scanned");
             String barcode = intentResult.getContents();
             builder.setMessage(barcode); //result of scan is here, should be a lookup code
-            builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
@@ -330,34 +330,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    private void logItem(String barcode, String category, String material){
-        Map<String, Object> myScan = new HashMap<>();
-        myScan.put("barcode", barcode);
-        myScan.put("category", category);
-        myScan.put("material", material);
-
-        String curUser = sharedPreferences.getString("user", "None");
-        myScan.put("user", curUser);
-
-        db.collection("barcodes").document() //Does there need to be something within document()?
-                .set(myScan)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid){
-                        Log.d("scanPush", "Successfully pushed scan!");
-                        Toast.makeText(getApplicationContext(),
-                                "Successfully logged item!.",
-                                Toast.LENGTH_LONG).show();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("scanPush", "Error writing document", e);
-                    }
-                });
-    }
+    /*
 
     private void updateResultScreen(String response){
 
@@ -411,4 +384,7 @@ public class MainActivity extends AppCompatActivity {
 
             });
         }
+
+
+     */
     }
