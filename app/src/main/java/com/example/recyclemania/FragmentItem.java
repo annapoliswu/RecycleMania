@@ -22,6 +22,9 @@ import androidx.fragment.app.Fragment;
      String[] list2;
      String[][] list2D;
      RecyclingSub[] listSub;
+     String category;
+     String barcode;
+     String user;
 
      AdapterView.OnItemClickListener clickListener;
 
@@ -72,6 +75,19 @@ import androidx.fragment.app.Fragment;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Bundle args = getArguments();
+         if(args != null){
+             if(args.getString("category") != null) {
+                 category = args.getString("category");
+             }
+             if(args.getString("barcode") != null) {
+                 barcode = args.getString("barcode");
+             }
+             if(args.getString("user") != null) {
+                 user = args.getString("user");
+             }
+
+         }
         return inflater.inflate(R.layout.fragment_item, container, false);
 
     }

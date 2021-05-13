@@ -19,18 +19,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
 
-import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -41,10 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 
@@ -66,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     final Context context = this;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    String category;
+    String subcategory;
+    String ean;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -216,6 +210,21 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        //testing passing stuff
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            category = extras.getString("category");
+            subcategory = extras.getString("subcategory");
+            String str = "Category: " + category + " Subcategory: " + subcategory;
+            textView.setText(str);
+        }else{
+            category = null;
+            subcategory = null;
+            textView.setText("hmm");
+        }
+
+
+
         scanButton = findViewById(R.id.bt_scan);
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -245,6 +254,8 @@ public class MainActivity extends AppCompatActivity {
 //                }
             }
         });
+
+
     }
 
     @Override
@@ -256,50 +267,37 @@ public class MainActivity extends AppCompatActivity {
         );
 
         if(intentResult != null){
+
             AlertDialog.Builder builder = new AlertDialog.Builder(
                     MainActivity.this
             );
 
-            builder.setTitle("Result");
-            builder.setMessage(intentResult.getContents()); //result of scan is here, should be a lookup code
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            builder.setTitle("Barcode scanned");
+            String barcode = intentResult.getContents();
+            builder.setMessage(barcode); //result of scan is here, should be a lookup code
+            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
                 }
             });
-            builder.show();
 
-            OkHttpClient client = new OkHttpClient();
-            String url = "https://api.upcitemdb.com/prod/trial/lookup?upc=" + intentResult.getContents();
-            //test url  https://reqres.in/api/users?page=2
-
-            Request request = new Request.Builder().url(url).build();
-            client.newCall(request).enqueue(new Callback() {
+            builder.setPositiveButton("Log in Database", new DialogInterface.OnClickListener() {
                 @Override
-                public void onFailure(Call call, IOException e) {
-                    MainActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            textView.setText("RIP REQUEST FAILED");
-                        }
-                    });
-                }
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent intent = new Intent(MainActivity.this, ScanSelect.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("barcode", barcode);
+                    String curUser = sharedPreferences.getString("user", "None");
+                    bundle.putString("user", curUser);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
 
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    if(response.isSuccessful()){
-                        String myResponse = response.body().string();
-
-                        // Store the API response in SharedPreferences local memory, so that for development we dont have to constantly re-scan and make API requests
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("response", myResponse);
-                        editor.commit();
-
-                        updateResultScreen(myResponse);
-                    }
                 }
             });
+            builder.show();
+
+
 
         }else{
             Toast.makeText(getApplicationContext(),
@@ -307,6 +305,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.LENGTH_LONG).show();
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -331,16 +330,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*
+
     private void updateResultScreen(String response){
-
-
 
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                dialog.setTitle("2nd");
+                dialog.setMessage(response);
+                dialog.setNegativeButton("Back", (dialog12, which) -> {});
+                dialog.show();
+
                 JSONObject myJson = new JSONObject();
                 JSONArray myArray = new JSONArray();
                 JSONObject myItems = new JSONObject();
+
 
                 try {
                     myJson = new JSONObject(response);
@@ -375,6 +381,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
                 //TODO: Make a nice response screen
+
             });
         }
+
+
+     */
     }
