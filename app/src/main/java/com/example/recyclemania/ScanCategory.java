@@ -2,6 +2,7 @@ package com.example.recyclemania;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -105,6 +106,10 @@ public class ScanCategory extends RecyclingCategory{
                                 dialog.setMessage("Item is not recyclable.");
                             }
                             logItem(title[0], frag.barcode,frag.category,subcat.name, subcat.recyclable, frag.user);
+                            dialog.setPositiveButton("Recycle", (dialog1, which) -> {
+                                Intent check = new Intent(context.getApplicationContext(), CheckSplash.class);
+                                context.startActivity(check);
+                            });
                             dialog.setNegativeButton("Back", (dialog12, which) -> {
                                 backToMain(bundle);
                             });

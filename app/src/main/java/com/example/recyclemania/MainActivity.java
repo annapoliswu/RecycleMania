@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
         //onRequestPermissionResult gets called after finishes
         ActivityCompat.requestPermissions(MainActivity.this, PERMISSIONS, ALL_PERMISSIONS);
         textView = findViewById(R.id.text_view);
+        ImageView logo = findViewById(R.id.recycle_logo);
+
 
         Resources res = MainActivity.this.getResources();
         tips.put("♻️1 - PET", res.getString(R.string.plastic1tip));
@@ -173,11 +175,10 @@ public class MainActivity extends AppCompatActivity {
             category = extras.getString("category");
             subcategory = extras.getString("subcategory");
             String str = "Category: " + category + " Subcategory: " + subcategory;
-            textView.setText(str);
+            //textView.setText(str);
         }else{
             category = null;
             subcategory = null;
-            textView.setText("hmm");
         }
 
 
