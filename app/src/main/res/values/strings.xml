@@ -27,4 +27,6 @@
     <string name="metal41tip">Rinse out any contaminants. Remove any tabs and recycle.</string>
     <string name="ewastetip">Is not recyclable in general waste bin. If recycling, please find an appropriate center.</string>
     <string name="organictip">Is not recyclable in general waste bin. If recycling, please try composting.</string>
+    <string name="title_activity_result_splash">ResultSplash</string>
+    <string name="title_activity_x_splash">XSplash</string>
 </resources>
