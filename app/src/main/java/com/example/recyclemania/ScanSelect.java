@@ -1,6 +1,7 @@
 package com.example.recyclemania;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.widget.AdapterView;
 
@@ -25,60 +26,61 @@ public class ScanSelect extends AppCompatActivity {
     //if you change these, make sure to change the Map
     String[] categories = new String[]{"Paper", "Plastic" , "Glass", "Metal", "Other"};
     Map<String, ScanCategory> categoryMap = new HashMap<>();
-    String generalTip = "Rinse out any contaminants and recycle.";
-
-    ScanCategory plastic = new ScanCategory(
-            new RecyclingSub[]{
-                    new RecyclingSub("♻️1 - PET", "Soft drinks, bottles, juice containers, oil bottles.", generalTip ,true),
-                    new RecyclingSub("♻️2 - HDPE", "Milk jugs, cleaning agents, laundry agents, shampoo bottles.", generalTip,true),
-                    new RecyclingSub("♻️3 - PVC", "Pipes, auto product bottles, fruit trays, food foils, plastic wrap.", false),
-                    new RecyclingSub("♻️4 - LDPE", "Squeeze bottles, most bags, six-pack rings", "Clear any contaminants and recycle." , true),
-                    new RecyclingSub("♻️5 - PP", "Auto parts, industrial fibres", "Is not recyclable in general waste bin. If recycling, please find an appropriate center.",true),
-                    new RecyclingSub("♻️6 - PS", "Plastic utensils, styrofoam, cafeteria trays.", false),
-                    new RecyclingSub("♻️7 - Other", "Any other plastics.", false),
-            },
-            ScanSelect.this
-    );
-
-    ScanCategory paper = new ScanCategory(
-            new RecyclingSub[] {
-                    new RecyclingSub("♻️20 - PAP", "Cardboard boxes.", "Make sure there is no liquid or contaminant on the box by cutting those parts out.\n\nIf the box has too much contamination, throw it out. Flatten and recycle.", true),
-                    new RecyclingSub("♻️21 - PAP", "Cereal and snack boxes.", "Make sure there is no remaining food on the box. Flatten and recycle.", true),
-                    new RecyclingSub("♻️22 - PAP", "Newspaper, books, magazines, wrapping paper, wallpaper, paper bags, paper straws.", "Make sure there is no liquid or contaminant on the paper by cutting those parts out.\n\nIf the paper has too much contamination, throw it out.", true),
-                    new RecyclingSub("♻️81 - PAP/PET", "Consumer packaging, pet food bags, cold store grocery bags, icecream containers, cardboard cans, disposable plates.", false),
-                    new RecyclingSub("♻️84 - C/PAP", "Liquid storage containers, juice boxes, cardboard cans, cigarette pack liners, wax paper, gum wrappers, cartridge shells for blanks, fireworks colouring material, Tetra Brik.", false),
-                    new RecyclingSub("♻️87 - CSL", "Laminating material, special occasion cards, bookmarks, business cards, flyers/advertising.", false)
-            },
-            ScanSelect.this
-    );
-
-    //was not sure if we should include all the glass categories since they're all mostly recyclable
-    ScanCategory glass = new ScanCategory(
-            new RecyclingSub[] {
-                    new RecyclingSub("♻️70-74 - GL", "Various color glass bottles.", "Rinse out any contaminants and recycle.", true),
-                    new RecyclingSub("Other", "Window panes, mirrors, monitors.", false)
-            },
-            ScanSelect.this
-    );
-    ScanCategory metal = new ScanCategory(
-            new RecyclingSub[] {
-                    new RecyclingSub("♻️40 - FE", "Food cans.", "Rinse out any contaminants. Remove the lid, place it inside the can, and recycle.", true),
-                    new RecyclingSub("♻️41 - ALU", "Soft drink cans, deodorant cans, disposable food containers, aluminium foil, heat sinks.", "Rinse out any contaminants. Remove any tabs and recycle.", true),
-            },
-            ScanSelect.this
-    );
-
-    ScanCategory other = new ScanCategory(
-            new RecyclingSub[] {
-                    new RecyclingSub("E-waste", "Computers, phones, batteries.", "Is not recyclable in general waste bin. If recycling, please find an appropriate center.", true),
-                    new RecyclingSub("Organic", "Food waste, peels, egg shells, etc.", "Is not recyclable in general waste bin. If recycling, please try composting.", true)
-            },
-            ScanSelect.this
-    );
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Resources res = ScanSelect.this.getResources();
+
+        ScanCategory plastic = new ScanCategory(
+                new RecyclingSub[]{
+                        new RecyclingSub("♻️1 - PET", "Soft drinks, bottles, juice containers, oil bottles.", res.getString(R.string.plastic1tip) ,true),
+                        new RecyclingSub("♻️2 - HDPE", "Milk jugs, cleaning agents, laundry agents, shampoo bottles.", res.getString(R.string.plastic2tip),true),
+                        new RecyclingSub("♻️3 - PVC", "Pipes, auto product bottles, fruit trays, food foils, plastic wrap.", false),
+                        new RecyclingSub("♻️4 - LDPE", "Squeeze bottles, most bags, six-pack rings", res.getString(R.string.plastic4tip) , true),
+                        new RecyclingSub("♻️5 - PP", "Auto parts, industrial fibres", res.getString(R.string.plastic5tip),true),
+                        new RecyclingSub("♻️6 - PS", "Plastic utensils, styrofoam, cafeteria trays.", false),
+                        new RecyclingSub("♻️7 - Other", "Any other plastics.", false),
+                },
+                ScanSelect.this
+        );
+
+        ScanCategory paper = new ScanCategory(
+                new RecyclingSub[] {
+                        new RecyclingSub("♻️20 - PAP", "Cardboard boxes.", res.getString(R.string.paper20tip), true),
+                        new RecyclingSub("♻️21 - PAP", "Cereal and snack boxes.", res.getString(R.string.paper21tip), true),
+                        new RecyclingSub("♻️22 - PAP", "Newspaper, books, magazines, wrapping paper, wallpaper, paper bags, paper straws.", getString(R.string.paper22tip), true),
+                        new RecyclingSub("♻️81 - PAP/PET", "Consumer packaging, pet food bags, cold store grocery bags, icecream containers, cardboard cans, disposable plates.", false),
+                        new RecyclingSub("♻️84 - C/PAP", "Liquid storage containers, juice boxes, cardboard cans, cigarette pack liners, wax paper, gum wrappers, cartridge shells for blanks, fireworks colouring material, Tetra Brik.", false),
+                        new RecyclingSub("♻️87 - CSL", "Laminating material, special occasion cards, bookmarks, business cards, flyers/advertising.", false)
+                },
+                ScanSelect.this
+        );
+
+        //was not sure if we should include all the glass categories since they're all mostly recyclable
+        ScanCategory glass = new ScanCategory(
+                new RecyclingSub[] {
+                        new RecyclingSub("♻️70-74 - GL", "Various color glass bottles.", res.getString(R.string.glass70tip), true),
+                        new RecyclingSub("Other", "Window panes, mirrors, monitors.", false)
+                },
+                ScanSelect.this
+        );
+        ScanCategory metal = new ScanCategory(
+                new RecyclingSub[] {
+                        new RecyclingSub("♻️40 - FE", "Food cans.", res.getString(R.string.metal40tip), true),
+                        new RecyclingSub("♻️41 - ALU", "Soft drink cans, deodorant cans, disposable food containers, aluminium foil, heat sinks.", res.getString(R.string.metal41tip), true),
+                },
+                ScanSelect.this
+        );
+
+        ScanCategory other = new ScanCategory(
+                new RecyclingSub[] {
+                        new RecyclingSub("E-waste", "Computers, phones, batteries.", res.getString(R.string.ewastetip), true),
+                        new RecyclingSub("Organic", "Food waste, peels, egg shells, etc.", res.getString(R.string.organictip), true)
+                },
+                ScanSelect.this
+        );
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_select);
         Toolbar toolbar = findViewById(R.id.toolbar);

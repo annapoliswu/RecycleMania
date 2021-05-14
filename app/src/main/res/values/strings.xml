@@ -12,4 +12,19 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="plastic1tip">Rinse out any contaminants and recycle.</string>
+    <string name="plastic2tip">Rinse out any contaminants and recycle.</string>
+    <string name="plastic4tip">Clear any contaminants and recycle.</string>
+    <string name="plastic5tip">Is not recyclable in general waste bin. If recycling, please find an appropriate center.</string>
+
+    <string name="paper20tip">Make sure there is no liquid or contaminant on the box by cutting those parts out.\n\nIf the box has too much contamination, throw it out. Flatten and recycle.</string>
+    <string name="paper21tip">Make sure there is no remaining food on the box. Flatten and recycle.</string>
+    <string name="paper22tip">Make sure there is no liquid or contaminant on the paper by cutting those parts out.\n\nIf the paper has too much contamination, throw it out.</string>
+
+    <string name="glass70tip">Rinse out any contaminants and recycle.</string>
+    <string name="metal40tip">Rinse out any contaminants. Remove the lid, place it inside the can, and recycle.</string>
+    <string name="metal41tip">Rinse out any contaminants. Remove any tabs and recycle.</string>
+    <string name="ewastetip">Is not recyclable in general waste bin. If recycling, please find an appropriate center.</string>
+    <string name="organictip">Is not recyclable in general waste bin. If recycling, please try composting.</string>
 </resources>
