@@ -136,8 +136,6 @@ public class MainActivity extends AppCompatActivity {
                                     public void onClick(DialogInterface dialog, int id) {
                                         // get user input and set it to result
                                         // edit text
-                                        result.setText("User: " + userInput.getText());
-
                                         String myResponse = userInput.getText().toString();
 
                                         // Store the API response in SharedPreferences local memory, so that for development we dont have to constantly re-scan and make API requests
@@ -151,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
                                         Firebase.newUser(myResponse);
 
                                         Firebase.updatePointsView(myResponse, result2, sharedPreferences);
+
+                                        result.setText("Welcome " + userInput.getText() + "!");
 
                                     }
                                 }
@@ -275,6 +275,7 @@ public class MainActivity extends AppCompatActivity {
                                     Bundle bundle = new Bundle();
                                     bundle.putString("barcode", barcode);
                                     String curUser = sharedPreferences.getString("user", "None");
+                                    Firebase.incrementPoints(curUser, 5);
                                     bundle.putString("user", curUser);
                                     intent.putExtras(bundle);
                                     startActivity(intent);
