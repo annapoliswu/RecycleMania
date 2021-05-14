@@ -21,6 +21,10 @@ public abstract class RecyclingCategory {
         context.startActivity(intent);
     }
 
+    public void showCheck() {
+
+    }
+
     public void backToMain(Bundle bundle){
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtras(bundle);

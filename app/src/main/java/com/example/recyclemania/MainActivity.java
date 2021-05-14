@@ -441,4 +441,10 @@ public class MainActivity extends AppCompatActivity {
 
 
      */
+
+    public void displayCheck() {
+        ImageView check = (ImageView) findViewById(R.id.green_check);
+        int imageResource = getResources().getIdentifier("@drawable/green_check", null, this.getPackageName());
+        check.setImageResource(imageResource);
+    }
     }
