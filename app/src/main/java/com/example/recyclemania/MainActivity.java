@@ -26,6 +26,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -35,6 +36,7 @@ import com.google.zxing.integration.android.IntentResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -54,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
     Button manualButton;
     Button loginButton;
     TextView textView;
-    private EditText result;
-    private EditText result2;
+    private TextView result;
+    private TextView result2;
     SharedPreferences sharedPreferences;
     final Context context = this;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -96,28 +98,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        result = (EditText) findViewById(R.id.userName);
+        result = findViewById(R.id.userName);
         String userName = sharedPreferences.getString("user", "");
-        result.setText("User: " + userName);
+        result.setText("Welcome " + userName + "!");
 
         //TODO: Make this updatePoints() or something
-        result2 = (EditText) findViewById(R.id.userPoints);
-        db.collection("users").whereEqualTo("name", userName)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d("GetUserPoints", document.getId() + " => " + document.getData());
-                                result2.setText("Points: " + document.getData().get("points"));
-                            }
-                        } else {
-                            Log.d("GetUserPoints", "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
+        result2 = findViewById(R.id.userPoints);
 
+        Firebase.updatePointsView(userName, result2, sharedPreferences);
 
 
         loginButton = findViewById(R.id.login);
@@ -158,54 +146,10 @@ public class MainActivity extends AppCompatActivity {
                                         Map<String, Object> user = new HashMap<>();
                                         user.put("name", myResponse);
 
-                                        //TODO: Make this into fireStore.addUser("name")
-                                        Log.d("userExists?", "Entering db query setup");
-                                        db.collection("users").whereEqualTo("name", myResponse)
-                                                .get()
-                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                        if (task.isSuccessful()) {
-                                                            if(task.getResult().isEmpty()){
-                                                                //If user does not exist, add user to the database.
-                                                                db.collection("users")
-                                                                        .add(user)
-                                                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                                            @Override
-                                                                            public void onSuccess(DocumentReference documentReference) {
-                                                                                Log.d("DocSnippets", "DocumentSnapshot added with ID: " + documentReference.getId());
-                                                                            }
-                                                                        })
-                                                                        .addOnFailureListener(new OnFailureListener() {
-                                                                            @Override
-                                                                            public void onFailure(@NonNull Exception e) {
-                                                                                Log.w("DocSnippets", "Error adding document", e);
-                                                                            }
-                                                                        });
-                                                            }
-                                                    } else {
-                                                            Log.d("userExists?", "Error getting documents: ", task.getException());
-                                                        }
+                                        Firebase.newUser(myResponse);
 
-                                                    }
-                                                });
+                                        Firebase.updatePointsView(myResponse, result2, sharedPreferences);
 
-                                        //TODO: Update user points
-                                        db.collection("users").whereEqualTo("name", myResponse)
-                                                .get()
-                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                        if (task.isSuccessful()) {
-                                                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                                                Log.d("GetUserPoints", document.getId() + " => " + document.getData());
-                                                                result2.setText("Points: " + document.getData().get("points"));
-                                                            }
-                                                        } else {
-                                                            Log.d("GetUserPoints", "Error getting documents: ", task.getException());
-                                                        }
-                                                    }
-                                                });
                                     }
                                 }
                         ).setNegativeButton("Cancel",
@@ -242,12 +186,7 @@ public class MainActivity extends AppCompatActivity {
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
                 String persistentResponse = sharedPreferences.getString("response", "None");
-
-//                // If a barcode has not been scanned and stored in SharedPreference, then activate scanning environment
-//                if(persistentResponse == "None") {
 
                     Log.i("StartScan", "Response not present, entering Scan");
 
@@ -259,12 +198,7 @@ public class MainActivity extends AppCompatActivity {
                     intentIntegrator.setOrientationLocked(true);
                     intentIntegrator.setCaptureActivity(Capture.class); //this also has a permissions check I think
                     intentIntegrator.initiateScan();
-//                }
-//                else{ // Else, continue without having to scan and API request, using the same response that was stored during a previous run
-//                    Log.i("StartScan", "Response already present, using SharedPreference stored response");
-//                    updateResultScreen(persistentResponse);
-//
-//                }
+
             }
         });
 
@@ -302,7 +236,11 @@ public class MainActivity extends AppCompatActivity {
                                 builder.setPositiveButton("Recycle",new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        //TODO: increase points here.
+                                        //TODO: increment points by 3
+                                        String curUserName = sharedPreferences.getString("user", "None");
+                                        Firebase.incrementPoints(curUserName, 3);
+                                        Firebase.updatePointsView(curUserName, result2, sharedPreferences);
+
                                         dialog.dismiss();
                                     }
                                 });

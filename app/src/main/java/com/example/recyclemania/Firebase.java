@@ -1,7 +1,11 @@
 package com.example.recyclemania;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,90 +17,87 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Firebase extends AppCompatActivity{
 
-    private static final int RC_SIGN_IN = 420; //yeet. Placeholder until I figure out where this should be set at
+    static private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    public void createSignInIntent() {
-        // [START auth_fui_create_intent]
-        // Choose authentication providers
-        List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.EmailBuilder().build(),
-                new AuthUI.IdpConfig.PhoneBuilder().build(),
-                new AuthUI.IdpConfig.GoogleBuilder().build(),
-                new AuthUI.IdpConfig.FacebookBuilder().build(),
-                new AuthUI.IdpConfig.TwitterBuilder().build());
+    static void newUser(String name) {
 
-        // Create and launch sign-in intent
-        startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(providers)
-                        .build(),
-                RC_SIGN_IN);
-        // [END auth_fui_create_intent]
+        Map<String, Object> user = new HashMap<>();
+        user.put("name", name);
+        user.put("points", 0);
+
+        db.collection("users").whereEqualTo("name", name)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().isEmpty()) {
+                                //If user does not exist, add user to the database.
+                                db.collection("users").document(name).set(user);
+
+//                                                                db.collection("users")
+//                                                                        .add(user)
+//                                                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                                                                            @Override
+//                                                                            public void onSuccess(DocumentReference documentReference) {
+//                                                                                Log.d("DocSnippets", "DocumentSnapshot added with ID: " + documentReference.getId());
+//                                                                            }
+//                                                                        })
+//                                                                        .addOnFailureListener(new OnFailureListener() {
+//                                                                            @Override
+//                                                                            public void onFailure(@NonNull Exception e) {
+//                                                                                Log.w("DocSnippets", "Error adding document", e);
+//                                                                            }
+//                                                                        });
+                            }
+                        } else {
+                            Log.d("userExists?", "User already exists, change nothing");
+                        }
+
+                    }
+                });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == RC_SIGN_IN) {
-            IdpResponse response = IdpResponse.fromResultIntent(data);
-
-            if (resultCode == RESULT_OK) {
-                // Successfully signed in
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                // ...
-            } else {
-                // Sign in failed. If response is null the user canceled the
-                // sign-in flow using the back button. Otherwise check
-                // response.getError().getErrorCode() and handle the error.
-                // ...
-            }
-        }
+    static void incrementPoints(String name, int points){
+        DocumentReference userRef = db.collection("users").document(name);
+        userRef.update("points", FieldValue.increment(points));
     }
 
-    void enableEmailLinkThing(){
-        ActionCodeSettings actionCodeSettings = ActionCodeSettings.newBuilder()
-                .setAndroidPackageName(/* yourPackageName= */ "com.example.recyclemania", /* installIfNotAvailable= */ true,
-                /* minimumVersion= */ null)
-        .setHandleCodeInApp(true) // This must be set to true
-                .setUrl("https://google.com") // This URL needs to be whitelisted
-                .build();
+    static void updatePointsView(String name, TextView myView, SharedPreferences myPref){
+        db.collection("users").whereEqualTo("name", name)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d("GetUserPoints", document.getId() + " => " + document.getData());
+                                myView.setText("Points: " + document.getData().get("points"));
 
-//        startActivityForResult(
-//                AuthUI.getInstance()
-//                        .createSignInIntentBuilder()
-//                        .setAvailableProviders(Arrays.asList(
-//                                new AuthUI.IdpConfig.EmailBuilder().enableEmailLinkSignIn()
-//                                        .setActionCodeSettings(actionCodeSettings).build())
-//                                        .build(),
-//                                RC_SIGN_IN));
+                                SharedPreferences.Editor editor = myPref.edit();
+                                editor.putLong("points", (Long) document.getData().get("points"));
+                                editor.commit();
 
-        if (AuthUI.canHandleIntent(getIntent())) {
-            if (getIntent().getExtras() == null) {
-                return;
-            }
-            String link = getIntent().getExtras().getString(ExtraConstants.EMAIL_LINK_SIGN_IN);
-            if (link != null) {
-//                startActivityForResult(
-//                        AuthUI.getInstance()
-//                                .createSignInIntentBuilder()
-//                                .setEmailLink(link)
-//                                .setAvailableProviders(getAvailableProviders()) //getAvailableProviders not found so commented out
-//                                .build(),
-//                        RC_SIGN_IN);
-            }
-        }
-
+                            }
+                        } else {
+                            Log.d("GetUserPoints", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
 
     }
-
-
 }
