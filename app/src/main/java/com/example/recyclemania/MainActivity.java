@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -59,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     String category;
     String subcategory;
-    String ean;
+    Map<String, String> tips = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,11 +69,23 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         sharedPreferences = getPreferences(MODE_PRIVATE); // Access to SharedPreferences local storage
 
-
         //onRequestPermissionResult gets called after finishes
         ActivityCompat.requestPermissions(MainActivity.this, PERMISSIONS, ALL_PERMISSIONS);
-
         textView = findViewById(R.id.text_view);
+
+        Resources res = MainActivity.this.getResources();
+        tips.put("♻️1 - PET", res.getString(R.string.plastic1tip));
+        tips.put("♻️2 - HDPE", res.getString(R.string.plastic2tip));
+        tips.put("♻️4 - LDPE", res.getString(R.string.plastic4tip));
+        tips.put("♻️5 - PP", res.getString(R.string.plastic5tip));
+        tips.put("♻️20 - PAP", res.getString(R.string.paper20tip));
+        tips.put("♻️21 - PAP", res.getString(R.string.paper21tip));
+        tips.put("♻️22 - PAP", res.getString(R.string.paper22tip));
+        tips.put("♻️70-74 - GL", res.getString(R.string.glass70tip));
+        tips.put("♻️40 - FE", res.getString(R.string.metal40tip));
+        tips.put("♻️41 - ALU", res.getString(R.string.metal41tip));
+        tips.put("E-waste", res.getString(R.string.ewastetip));
+        tips.put("Organic", res.getString(R.string.organictip));
 
         manualButton = findViewById(R.id.bt_scan2);
         manualButton.setOnClickListener(new View.OnClickListener() {
@@ -103,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-
 
 
 
@@ -268,34 +281,74 @@ public class MainActivity extends AppCompatActivity {
 
         if(intentResult != null){
 
+
             AlertDialog.Builder builder = new AlertDialog.Builder(
                     MainActivity.this
             );
 
-            builder.setTitle("Barcode scanned");
             String barcode = intentResult.getContents();
-            builder.setMessage(barcode); //result of scan is here, should be a lookup code
-            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+
+            db.collection("barcodes").document(barcode).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            Map data = document.getData();
+                            builder.setTitle("Item Found");
+                            String tip;
+                            if( (Boolean)data.get("recyclable") == true){
+                                tip = tips.get(data.get("material"));
+                                builder.setPositiveButton("Recycle",new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //TODO: increase points here.
+                                        dialog.dismiss();
+                                    }
+                                });
+                            }else{
+                                tip = "Item not recyclable";
+                            }
+                            builder.setMessage(data.get("title") + "\n\nCategory: " + data.get("category") + "\nMaterial: " + data.get("material") + "\n\n"+ tip); //result of scan is here, should be a lookup code
+                            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+
+                            builder.show();
+                        } else {
+
+                            builder.setTitle("Item Not Found in Database");
+                            builder.setMessage("Kindly enter item into database for points?"); //result of scan is here, should be a lookup code
+                            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+
+                            builder.setPositiveButton("Log in Database", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent(MainActivity.this, ScanSelect.class);
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString("barcode", barcode);
+                                    String curUser = sharedPreferences.getString("user", "None");
+                                    bundle.putString("user", curUser);
+                                    intent.putExtras(bundle);
+                                    startActivity(intent);
+
+                                }
+                            });
+                            builder.show();
+                        }
+                    } else {
+                        Log.d("aa", "Failed with: ", task.getException());
+                    }
                 }
             });
-
-            builder.setPositiveButton("Log in Database", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Intent intent = new Intent(MainActivity.this, ScanSelect.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("barcode", barcode);
-                    String curUser = sharedPreferences.getString("user", "None");
-                    bundle.putString("user", curUser);
-                    intent.putExtras(bundle);
-                    startActivity(intent);
-
-                }
-            });
-            builder.show();
 
 
 
@@ -329,6 +382,7 @@ public class MainActivity extends AppCompatActivity {
                 throw new IllegalStateException("Unexpected value: " + requestCode);
         }
     }
+
 
     /*
 
