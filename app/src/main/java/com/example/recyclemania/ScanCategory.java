@@ -102,14 +102,19 @@ public class ScanCategory extends RecyclingCategory{
                             //dialog.setMessage("Title: "+ title[0] + "\nCategory: " + frag.category + "\nSubcategory: " + subcat.name + "\nBarcode: " +  frag.barcode);
                             if(subcat.recyclable){
                                 dialog.setMessage("To recycle:\n" + subcat.tip);
+                                dialog.setPositiveButton("Recycle", (dialog1, which) -> {
+                                    Intent check = new Intent(context.getApplicationContext(), CheckSplash.class);
+                                    context.startActivity(check);
+                                });
                             }else{
                                 dialog.setMessage("Item is not recyclable.");
+                                dialog.setPositiveButton("Continue", (dialog1, which) -> {
+                                    Intent check = new Intent(context.getApplicationContext(), XSplash.class);
+                                    context.startActivity(check);
+                                });
                             }
                             logItem(title[0], frag.barcode,frag.category,subcat.name, subcat.recyclable, frag.user);
-                            dialog.setPositiveButton("Recycle", (dialog1, which) -> {
-                                Intent check = new Intent(context.getApplicationContext(), CheckSplash.class);
-                                context.startActivity(check);
-                            });
+
                             dialog.setNegativeButton("Back", (dialog12, which) -> {
                                 backToMain(bundle);
                             });
