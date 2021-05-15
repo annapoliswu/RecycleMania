@@ -89,8 +89,10 @@ public class Firebase extends AppCompatActivity{
                                 myView.setText("Points: " + document.getData().get("points"));
 
                                 SharedPreferences.Editor editor = myPref.edit();
-                                editor.putLong("points", (Long) document.getData().get("points"));
-                                editor.commit();
+                                if(document.getData().get("points") != null) {
+                                    editor.putLong("points", (Long) document.getData().get("points"));
+                                    editor.commit();
+                                }
 
                             }
                         } else {
